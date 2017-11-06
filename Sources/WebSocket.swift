@@ -509,7 +509,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Private method that starts the connection.
      */
     private func createHTTPRequest() {
-        guard let url = request.url else {return}
+        guard let url = request.url else { return }
+
         var port = url.port
         if port == nil {
             if supportedSSLSchemes.contains(url.scheme!) {
@@ -518,17 +519,20 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 port = 80
             }
         }
+
         request.setValue(headerWSUpgradeValue, forHTTPHeaderField: headerWSUpgradeName)
         request.setValue(headerWSConnectionValue, forHTTPHeaderField: headerWSConnectionName)
-        headerSecKey = generateWebSocketKey()
         request.setValue(headerWSVersionValue, forHTTPHeaderField: headerWSVersionName)
+
+        headerSecKey = generateWebSocketKey()
         request.setValue(headerSecKey, forHTTPHeaderField: headerWSKeyName)
         
         if enableCompression {
             let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
             request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
         }
-        request.setValue("\(url.host!):\(port!)", forHTTPHeaderField: headerWSHostName)
+
+        request.setValue("\(url.host!)", forHTTPHeaderField: headerWSHostName)
 
         var path = url.absoluteString
         let offset = (url.scheme?.count ?? 2) + 3
@@ -545,6 +549,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 httpBody += "\(key): \(val)\r\n"
             }
         }
+
         httpBody += "\r\n"
         
         initStreamsWithData(httpBody.data(using: .utf8)!, Int(port!))
